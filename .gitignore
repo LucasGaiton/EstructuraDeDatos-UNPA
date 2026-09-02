@@ -1,0 +1,12 @@
+# Depencendis
+node_modules/
+
+# .exe binaries
+*.exe
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
