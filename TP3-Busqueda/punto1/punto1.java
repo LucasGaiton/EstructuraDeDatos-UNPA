@@ -16,29 +16,29 @@ public class punto1 {
     }
 
     private static void busquedaBinaria(int[] elementos, int encontrar) {
-        for (int i = 0; i < elementos.length - 1; i++){
-            for(int j = 0; j < elementos.length -1 - i; j++){
-                if(elementos[j] > elementos[j + 1]){
+        // Ordenamos el arreglo
+        for (int i = 0; i < elementos.length - 1; i++) {
+            for (int j = 0; j < elementos.length - 1; j++) {
+                if (elementos[j] > elementos[j + 1]) {
                     int mayor = elementos[j];
-                    int menor = elementos[j+1];
+                    int menor = elementos[j + 1];
                     elementos[j] = menor;
-                    elementos[j+1] = mayor;
-                }   
-            } 
+                    elementos[j + 1] = mayor;
+                }
+            }
         }
 
-        int inicio= 0;
-        int fin = elementos.length -1;
-        while(inicio <= fin){
+        int inicio = 0;
+        int fin = elementos.length - 1;
+        while (inicio <= fin) {
             int medio = (inicio + fin) / 2;
-            if(encontrar > elementos[medio]){
+            if (encontrar > elementos[medio]) {
                 inicio = medio + 1;
-            }
-            else{
-                if(encontrar < elementos[medio]){
+            } else {
+                if (encontrar < elementos[medio]) {
                     fin = medio - 1;
-                }else{
-                    System.out.println("elemento encontrado "+ elementos[medio]);
+                } else {
+                    System.out.println("elemento encontrado " + elementos[medio]);
                     return;
                 }
             }
@@ -46,10 +46,51 @@ public class punto1 {
         System.out.println("No encontrado");
     }
 
+    // Busqueda por interpolación
+    public static void busquedaInterpolación(int[] elementos, int encontrar) {
+        // Ordenamos el arreglo
+        for (int i = 0; i < elementos.length - 1; i++) {
+            for (int j = 0; j < elementos.length - 1; j++) {
+                if (elementos[j] > elementos[j + 1]) {
+                    int mayor = elementos[j];
+                    int menor = elementos[j + 1];
+                    elementos[j] = menor;
+                    elementos[j + 1] = mayor;
+                }
+            }
+        }
+        int inicio = 0;
+        int fin = elementos.length - 1;
+        while (inicio <= fin) {
+            if (elementos[inicio] == elementos[fin]) {
+                if (elementos[inicio] == encontrar) {
+                    System.out.println("Elemento encontrado en la posición " + inicio);
+                } else {
+                    System.out.println("No se encontró");
+                }
+                return;
+            }
+            int medio = inicio
+                    + (((encontrar - elementos[inicio]) * (fin - inicio)) / (elementos[fin] - elementos[inicio]));
+            if (elementos[medio] == encontrar) {
+                System.out.println("Elemento encontrado en la posición " + medio);
+                return;
+            } else {
+                if (encontrar > elementos[medio]) {
+                    inicio = medio + 1;
+                } else {
+                    inicio = medio - 1;
+                }
+            }
+
+        }
+    }
+
     public static void main(String[] args) {
-        int[] elementos = { 10, 25, 66, 10, 8 };
-        int encontrar = 25;
-        busquedaSecuencial(elementos, encontrar);
-        busquedaBinaria(elementos, encontrar);
+        int[] elementos = { 10, 25, 66, 10, 8, 21, 67, 8, 9, 20 };
+        int encontrar = 66;
+        // busquedaSecuencial(elementos, encontrar);
+        // busquedaBinaria(elementos, encontrar);
+        busquedaInterpolación(elementos, encontrar);
     }
 }
