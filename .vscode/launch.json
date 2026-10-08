@@ -6,13 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "punto1",
-            "request": "launch",
-            "mainClass": "punto1.punto1",
-            "projectName": "Estructura de datos_d2938426"
-        },
-        {
-            "type": "java",
             "name": "MainD",
             "request": "launch",
             "mainClass": "TP5.MatrizDeAdyacencia.MainD",
@@ -20,37 +13,9 @@
         },
         {
             "type": "java",
-            "name": "prueba",
-            "request": "launch",
-            "mainClass": "prueba",
-            "projectName": "Estructura de datos_d2938426"
-        },
-        {
-            "type": "java",
-            "name": "prueba",
-            "request": "launch",
-            "mainClass": "parcial2019.prueba",
-            "projectName": "Estructura de datos_d2938426"
-        },
-        {
-            "type": "java",
-            "name": "Ordenamiento",
-            "request": "launch",
-            "mainClass": "Ordenamiento",
-            "projectName": "Estructura de datos_d2938426"
-        },
-        {
-            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "TablaHash",
-            "request": "launch",
-            "mainClass": "TablaHash",
-            "projectName": "Estructura de datos_d2938426"
         }
     ]
 }

@@ -6,26 +6,22 @@ import java.util.*;
 
 public class TablaHash {
 
-    private  int tableSize = 14;
+    private int tableSize = 10;
     private int[] tabla;
+    private int elements = 0;
 
     public TablaHash() {
         this.tabla = new int[this.tableSize];
         // Inicializamos la hash table con un entero especial que representa los
-        // espacios vacios
+        // espacios vacios (Valor centinela)
         for (int i = 0; i < this.tableSize; i++) {
             this.tabla[i] = -1;
         }
     }
 
-    // Solo modificamos el hash
-    private int hash2(int key) {
-        System.out.println("Esta es la key " + key + " esta es el resultado del hash " + (7 * key + 1) % 10);
-        return (7 * key + 1) % tableSize;
-    }
 
     // Hash para punto1
-    private int hash(int key) {
+    private int hashDivisiónModulo(int key) {
         return key % tableSize;
     }
 
@@ -35,7 +31,7 @@ public class TablaHash {
             int nuevoTamano = siguientePrimo(this.tableSize * 2);
             System.out.println("  El hash no tuvo exito -> redimensiono la tabla de "
                     + this.tableSize + " a " + nuevoTamano);
-            this.redimensionar(nuevoTamano);
+           // this.redimensionar(nuevoTamano);
 
         }
 
@@ -43,14 +39,14 @@ public class TablaHash {
 
     }
 
-    private void redimensionar(int nuevoTamano) {
+    private void redimensionar() {
         int[] tablaVieja = this.tabla;
+        int tamañoviejo = this.tableSize;
 
-        this.tabla = new int[nuevoTamano];
-        this.tableSize = nuevoTamano;
+        this.tableSize = this.siguientePrimo(tamañoviejo * 2);
+        this.tabla = new int[this.tableSize];
         Arrays.fill(this.tabla, -1);
-
-        System.out.println("  Reubico las claves que ya estaban guardadas:");
+        this.elements = 0;
 
         for (int clave : tablaVieja) {
             if (clave != -1) {
@@ -60,7 +56,7 @@ public class TablaHash {
         }
     }
 
-    private static int siguientePrimo(int n) {
+    private int siguientePrimo(int n) {
         int candidato = n;
         while (!esPrimo(candidato)) {
             candidato++;
@@ -80,19 +76,32 @@ public class TablaHash {
         return true;
     }
 
+    private int reHashingSecuencia(int place) {
+        place++;
+        if (place == this.tableSize - 1)
+            place = 0; // tratamiento circular
+        return place;
+
+    }
+
+    private boolean isFull() {
+        return this.elements / tableSize >= 0.7;
+    }
+
     public void insert(int key) {
-        int index = this.hash(key);
+        int index = this.hashDivisiónModulo(key);
         // Este es el framento de codigo que hay que modificar si se quiere modificar el
         // rehashing
-        int cont = 1;
-
+        if (isFull()) {
+            System.out.println("Factor de carga alto, se necesita redimensionar");
+            this.redimensionar();
+        }
         while (this.tabla[index] != -1) {
-            index = this.rehashingCuadratico(index, cont);
-
-            cont++;
+            index = this.reHashingSecuencia(index);
         }
 
         this.tabla[index] = key;
+        this.elements++;
     }
 
     public void mostrarHashTable() {
@@ -130,21 +139,13 @@ public class TablaHash {
     public static void main(String[] args) {
         try {
             TablaHash tabla = new TablaHash();
-            tabla.insert(125);
-            tabla.insert(228);
-            tabla.insert(172);
-            tabla.insert(264);
-            tabla.insert(156);
-            tabla.insert(161);
-            tabla.insert(358);
-            tabla.insert(479);
-            tabla.insert(288);
-            tabla.insert(110);
-            tabla.insert(347);
-            tabla.insert(253);
-            tabla.insert(217);
-            tabla.insert(368);
+            String nombreArchivo = "miArchivo";
+            archivoNumerosAleatorios(nombreArchivo);
+            tabla.cargarNumsArchivo(nombreArchivo);
 
+
+
+            
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
