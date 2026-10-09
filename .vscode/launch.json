@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "TablaHash",
+            "request": "launch",
+            "mainClass": "TablaHash",
+            "projectName": "Estructura de datos_d2938426"
+        },
+        {
+            "type": "java",
             "name": "MainD",
             "request": "launch",
             "mainClass": "TP5.MatrizDeAdyacencia.MainD",

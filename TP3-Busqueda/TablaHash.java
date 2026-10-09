@@ -6,9 +6,11 @@ import java.util.*;
 
 public class TablaHash {
 
-    private int tableSize = 10;
+    private int tableSize = 120;
     private int[] tabla;
     private int elements = 0;
+    private int comparaciones = 0;
+    private int intercambios = 0;
 
     public TablaHash() {
         this.tabla = new int[this.tableSize];
@@ -20,25 +22,7 @@ public class TablaHash {
     }
 
 
-    // Hash para punto1
-    private int hashDivisiónModulo(int key) {
-        return key % tableSize;
-    }
-
-    private int rehashingCuadratico(int base, int indice) {
-        int nuevoIndice = base + (int) Math.round(Math.pow(indice, 2.0));
-        if (nuevoIndice > this.tableSize) {
-            int nuevoTamano = siguientePrimo(this.tableSize * 2);
-            System.out.println("  El hash no tuvo exito -> redimensiono la tabla de "
-                    + this.tableSize + " a " + nuevoTamano);
-           // this.redimensionar(nuevoTamano);
-
-        }
-
-        return nuevoIndice;
-
-    }
-
+    
     private void redimensionar() {
         int[] tablaVieja = this.tabla;
         int tamañoviejo = this.tableSize;
@@ -49,6 +33,7 @@ public class TablaHash {
         this.elements = 0;
 
         for (int clave : tablaVieja) {
+            this.comparaciones++; // clave != -1
             if (clave != -1) {
                 System.out.println("  Reubico la clave " + clave + ":");
                 this.insert(clave);
@@ -64,43 +49,54 @@ public class TablaHash {
         return candidato;
     }
 
-    private static boolean esPrimo(int n) {
+    private boolean esPrimo(int n) {
+        this.comparaciones++; // n < 2
         if (n < 2) {
             return false;
         }
         for (int d = 2; d * d <= n; d++) {
+            this.comparaciones++; // condición d*d <= n de esta iteración
+            this.comparaciones++; // n % d == 0
             if (n % d == 0) {
                 return false;
             }
         }
+        this.comparaciones++; // condición d*d <= n final (corta el for)
         return true;
     }
 
     private int reHashingSecuencia(int place) {
         place++;
+        this.comparaciones++; // place == tableSize - 1
         if (place == this.tableSize - 1)
             place = 0; // tratamiento circular
         return place;
 
     }
-
+    // Hash para Punto 3B)
+    private int hashDivisiónModulo(int key) {
+        return key % tableSize;
+    }
+    
     private boolean isFull() {
         return this.elements / tableSize >= 0.7;
     }
 
     public void insert(int key) {
         int index = this.hashDivisiónModulo(key);
-        // Este es el framento de codigo que hay que modificar si se quiere modificar el
-        // rehashing
+        this.comparaciones++; // chequeo de isFull (elements/tableSize >= 0.7)
         if (isFull()) {
             System.out.println("Factor de carga alto, se necesita redimensionar");
             this.redimensionar();
         }
         while (this.tabla[index] != -1) {
+            this.comparaciones++; // casilla ocupada detectada
             index = this.reHashingSecuencia(index);
         }
+        this.comparaciones++; // casilla libre encontrada (corta el while)
 
         this.tabla[index] = key;
+        this.intercambios++; // operación de escritura de la clave
         this.elements++;
     }
 
@@ -113,6 +109,11 @@ public class TablaHash {
                 System.out.println("Índice " + i + ": vacío");
             }
         }
+    }
+
+    public void mostrarContadores() {
+        System.out.println("Comparaciones: " + this.comparaciones);
+        System.out.println("Cantidad de escrituras (intercambios): " + this.intercambios);
     }
 
     public void cargarNumsArchivo(String fileName) throws IOException {
@@ -128,7 +129,7 @@ public class TablaHash {
     public static void archivoNumerosAleatorios(String fileName) throws IOException {
         Random random = new Random();
         FileWriter writer = new FileWriter(fileName);
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 100; i++) {
             int num = 1000 + random.nextInt(9000);
             writer.write(num + "\n");
         }
@@ -142,6 +143,8 @@ public class TablaHash {
             String nombreArchivo = "miArchivo";
             archivoNumerosAleatorios(nombreArchivo);
             tabla.cargarNumsArchivo(nombreArchivo);
+            tabla.mostrarHashTable();;
+            tabla.mostrarContadores();
 
 
 
