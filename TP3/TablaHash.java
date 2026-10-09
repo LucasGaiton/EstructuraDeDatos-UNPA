@@ -1,4 +1,4 @@
-
+package TP3;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.util.*;
 
 public class TablaHash {
 
-    private int tableSize = 120;
+    private int tableSize = 5;
     private int[] tabla;
     private int elements = 0;
     private int comparaciones = 0;
@@ -129,7 +129,7 @@ public class TablaHash {
     public static void archivoNumerosAleatorios(String fileName) throws IOException {
         Random random = new Random();
         FileWriter writer = new FileWriter(fileName);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 6; i++) {
             int num = 1000 + random.nextInt(9000);
             writer.write(num + "\n");
         }
