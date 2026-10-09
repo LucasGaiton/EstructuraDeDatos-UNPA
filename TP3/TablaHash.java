@@ -1,4 +1,5 @@
 package TP3;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -6,7 +7,7 @@ import java.util.*;
 
 public class TablaHash {
 
-    private int tableSize = 5;
+    private int tableSize = 101;
     private int[] tabla;
     private int elements = 0;
     private int comparaciones = 0;
@@ -21,8 +22,6 @@ public class TablaHash {
         }
     }
 
-
-    
     private void redimensionar() {
         int[] tablaVieja = this.tabla;
         int tamañoviejo = this.tableSize;
@@ -50,41 +49,57 @@ public class TablaHash {
     }
 
     private boolean esPrimo(int n) {
-        this.comparaciones++; // n < 2
         if (n < 2) {
             return false;
         }
         for (int d = 2; d * d <= n; d++) {
-            this.comparaciones++; // condición d*d <= n de esta iteración
-            this.comparaciones++; // n % d == 0
             if (n % d == 0) {
                 return false;
             }
         }
-        this.comparaciones++; // condición d*d <= n final (corta el for)
         return true;
     }
 
     private int reHashingSecuencia(int place) {
         place++;
-        this.comparaciones++; // place == tableSize - 1
-        if (place == this.tableSize - 1)
+        if (place == this.tableSize)
             place = 0; // tratamiento circular
         return place;
 
     }
+
     // Hash para Punto 3B)
     private int hashDivisiónModulo(int key) {
         return key % tableSize;
     }
-    
+
+    // Hash para Punto 3B)
+    private int hashMedioCuadrado(int key) {
+        int cuadrado = (int) Math.pow(key, 2);
+        String aux = String.valueOf(cuadrado);
+        int particion = (int) aux.length() / 2;
+        String[] digitos = aux.split("");
+        System.out.println(
+                "Esta es la key " + key + " Esta es el cuadrdo " + cuadrado + " y esta es la particion " + particion);
+
+        if (digitos.length % 2 == 0) {
+            if (digitos[particion] == "0") {
+                return Integer.parseInt(digitos[particion + 1]);
+            } else {
+                return Integer.parseInt(digitos[particion] + digitos[particion + 1]);
+            }
+        } else {
+            return Integer.parseInt(digitos[particion + 1]);
+        }
+
+    }
+
     private boolean isFull() {
         return this.elements / tableSize >= 0.7;
     }
 
     public void insert(int key) {
-        int index = this.hashDivisiónModulo(key);
-        this.comparaciones++; // chequeo de isFull (elements/tableSize >= 0.7)
+        int index = this.hashMedioCuadrado(key);
         if (isFull()) {
             System.out.println("Factor de carga alto, se necesita redimensionar");
             this.redimensionar();
@@ -129,7 +144,7 @@ public class TablaHash {
     public static void archivoNumerosAleatorios(String fileName) throws IOException {
         Random random = new Random();
         FileWriter writer = new FileWriter(fileName);
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 100; i++) {
             int num = 1000 + random.nextInt(9000);
             writer.write(num + "\n");
         }
@@ -143,12 +158,10 @@ public class TablaHash {
             String nombreArchivo = "miArchivo";
             archivoNumerosAleatorios(nombreArchivo);
             tabla.cargarNumsArchivo(nombreArchivo);
-            tabla.mostrarHashTable();;
+            tabla.mostrarHashTable();
+            ;
             tabla.mostrarContadores();
 
-
-
-            
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
