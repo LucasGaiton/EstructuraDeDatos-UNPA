@@ -1,4 +1,5 @@
-
+import java.util.LinkedList;
+import java.util.ArrayList;
 public class TablaHash {
     int[] tablaHash;
     int tam = 101; // tamaño

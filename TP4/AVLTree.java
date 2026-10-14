@@ -64,6 +64,8 @@ public class AVLTree {
                     if (n.left.balance == +1) {
                         rotateLeft(n.left); // Preparación para rotación doble (Izq-Der)
                     }
+                    rotateRight(n); // Rotación (simple o doble) a la derecha
+                    this.grown = false;
                     break;
                 case -1:
                 case +1:
@@ -137,19 +139,103 @@ public class AVLTree {
         }
     }
 
+    // ------------------------------------------------------------------
+    // Dibujo del árbol por consola (Punto 3 del TP)
+    // ------------------------------------------------------------------
+
+    // Imprime el árbol completo mostrando, entre paréntesis, el factor
+    // de equilibrio de cada nodo. El árbol se dibuja "acostado": la raíz
+    // queda a la izquierda, el subárbol derecho hacia arriba y el izquierdo
+    // hacia abajo.
+    public void printTree() {
+        if (root == null) {
+            System.out.println("(árbol vacío)");
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Árbol AVL (clave (factor de equilibrio)):\n");
+        printTree(root, null, false, sb);
+        System.out.print(sb);
+    }
+
+    // Guarda el prefijo que conecta a un nodo con su padre al dibujar las ramas
+    private static class Trunk {
+        Trunk prev;
+        String str;
+
+        Trunk(Trunk prev, String str) {
+            this.prev = prev;
+            this.str = str;
+        }
+    }
+
+    // Recorre recursivamente la cadena de "ramas" hacia la raíz para imprimirla
+    private void showTrunks(Trunk p, StringBuilder sb) {
+        if (p == null) {
+            return;
+        }
+        showTrunks(p.prev, sb);
+        sb.append(p.str);
+    }
+
+    // Dibuja el subárbol con raíz en "node". "isLeft" indica si el nodo es
+    // hijo izquierdo (se dibuja hacia abajo) o derecho (hacia arriba).
+    private void printTree(AVLNode node, Trunk prev, boolean isLeft, StringBuilder sb) {
+        if (node == null) {
+            return;
+        }
+
+        String prevStr = "    ";
+        Trunk trunk = new Trunk(prev, prevStr);
+
+        // Se dibuja primero el subárbol derecho (aparece "arriba")
+        printTree(node.right, trunk, true, sb);
+
+        if (prev == null) {
+            trunk.str = "--> "; // Raíz
+        } else if (isLeft) {
+            trunk.str = ".-- "; // Hijo derecho
+            prevStr = "  | ";
+        } else {
+            trunk.str = "`-- "; // Hijo izquierdo
+            prev.str = "    ";
+        }
+
+        showTrunks(trunk, sb);
+        sb.append(node.content)
+          .append(" (")
+          .append(node.balance)
+          .append(")\n");
+
+        if (prev != null) {
+            prev.str = prevStr;
+        }
+        trunk.str = "  | ";
+
+        // Luego el subárbol izquierdo (aparece "abajo")
+        printTree(node.left, trunk, false, sb);
+    }
+
     // Ejemplo de prueba de la estructura
     public static void main(String[] args) {
 
         AVLTree arbol = new AVLTree();
-        // Inserción de claves de prueba
-        int[] claves = {10, 20, 30, 40, 50, 25};
+        // Punto 3: inserción de la secuencia de claves del enunciado
+        int[] claves = {100, 29, 71, 82, 48, 39, 101, 22, 46, 17, 3, 20, 25, 25, 10};
         for (int clave : claves) {
-            arbol.insert(clave);
+            if (!arbol.insert(clave)) {
+                System.out.println("La clave " + clave + " ya existía en el árbol.");
+            }
         }
+
+        // Dibujo del árbol AVL resultante (Punto 3)
+        arbol.printTree();
+
+        // Recorrido Inorden para verificar el orden creciente de las claves
         System.out.print("Recorrido Inorden del Árbol AVL: ");
-        arbol.inorden(); // Salida esperada: 10 20 25 30 40 50
-        // System.out.println("¿Existe el 25 en el árbol?: " + [suspicious link removed](25));
-        // System.out.println("¿Existe el 99 en el árbol?: " + [suspicious link removed](99));
+        arbol.inorden();
+        // System.out.println("¿Existe el 25 en el árbol?: " + arbol.search(25));
+        // System.out.println("¿Existe el 99 en el árbol?: " + arbol.search(99));
 
     }
 }

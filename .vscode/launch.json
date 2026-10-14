@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "AVLTree",
+            "request": "launch",
+            "mainClass": "TP4.AVLTree",
+            "projectName": "Estructura de datos_d2938426"
+        },
+        {
+            "type": "java",
             "name": "TablaHash",
             "request": "launch",
             "mainClass": "TP3.TablaHash",
@@ -26,8 +33,13 @@
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "classPaths": ["${workspaceFolder}"],
-            "sourcePaths": ["${workpaceFolder}"]
+            "classPaths": [
+                "${workspaceFolder}"
+            ],
+            "sourcePaths": [
+                "${workspaceFolder}"
+            ],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
