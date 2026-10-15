@@ -1,0 +1,1 @@
+Cuando trabajas con clases genéricas u objetos de los cuales no conoces el tipo exacto de antemano (como en algoritmos de ordenamiento genéricos), los objetos se casfean a

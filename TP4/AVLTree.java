@@ -203,9 +203,9 @@ public class AVLTree {
 
         showTrunks(trunk, sb);
         sb.append(node.content)
-          .append(" (")
-          .append(node.balance)
-          .append(")\n");
+                .append(" (")
+                .append(node.balance)
+                .append(")\n");
 
         if (prev != null) {
             prev.str = prevStr;
@@ -221,7 +221,7 @@ public class AVLTree {
 
         AVLTree arbol = new AVLTree();
         // Punto 3: inserción de la secuencia de claves del enunciado
-        int[] claves = {100, 29, 71, 82, 48, 39, 101, 22, 46, 17, 3, 20, 25, 25, 10};
+        int[] claves = { 100, 29, 71, 82, 48, 39, 101, 22, 46, 17, 3, 20, 25, 25, 10 };
         for (int clave : claves) {
             if (!arbol.insert(clave)) {
                 System.out.println("La clave " + clave + " ya existía en el árbol.");
