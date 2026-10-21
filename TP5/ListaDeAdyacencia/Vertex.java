@@ -1,4 +1,4 @@
-
+package TP5.ListaDeAdyacencia;
 public class Vertex {
     private Object element;
     private Edge edge;

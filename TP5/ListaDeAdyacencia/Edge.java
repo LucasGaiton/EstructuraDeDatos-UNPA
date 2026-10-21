@@ -1,7 +1,4 @@
-
-
-
-
+package TP5.ListaDeAdyacencia;
 public class Edge {
     private int position;
     private Edge edge;

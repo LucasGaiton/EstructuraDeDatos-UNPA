@@ -1,26 +1,26 @@
+package TP5.ListaDeAdyacencia;
 import java.util.List;
 
 public class MainD {
     public static void main(String[] args) {
-        Graph g1 = new Graph(4);
-        g1.insertVertex("a");
-        g1.insertVertex("b");
-        g1.insertVertex("c");
-        g1.insertVertex("d");
-        g1.insertEdge("a", "b",2);
-        g1.insertEdge("a", "c",3);
-        g1.insertEdge("b", "d",1);
-        g1.insertEdge("d", "a",6);
+        Graph g1 = new Graph(6);
+        g1.insertVertex("1");
+        g1.insertVertex("2");
+        g1.insertVertex("4");
+        g1.insertVertex("5");
+        g1.insertVertex("6");
+        g1.insertVertex("3");
 
-        List<Integer> list = g1.dijkstraAlgorithm("a");
-        for (Integer elem : list) {
-            System.out.println(elem);
-        }
+        g1.insertEdge("1", "2", 3);
+        g1.insertEdge("1", "4", 12);
+        g1.insertEdge("2", "6", 3);
+        g1.insertEdge("2", "5", 1);
+        g1.insertEdge("5", "4", 7);
+        g1.insertEdge("5", "6", 1);
+        g1.insertEdge("6", "3", 2);
+        g1.insertEdge("3", "2", 4);
 
+        g1.depthFirstSearch("1");
 
-
-
-    
-        
     }
 }
