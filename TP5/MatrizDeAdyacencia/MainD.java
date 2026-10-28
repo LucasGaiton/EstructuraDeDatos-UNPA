@@ -20,8 +20,8 @@ public class MainD {
         graph.insertEdge(6, 3, 2);
         graph.insertEdge(3, 2, 4);
 
-        System.out.println("Dijkstra desde 1:");
-        System.out.println(graph.dijkstraAlgorithm(1));
+        // System.out.println("Dijkstra desde 1:");
+        // System.out.println(graph.dijkstraAlgorithm(1));
 
         System.out.println();
         System.out.println("Floyd:");
