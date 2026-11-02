@@ -1,3 +1,4 @@
+package TP6;
 import java.util.ArrayList;
 
 class TrieArray {

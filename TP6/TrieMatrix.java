@@ -1,46 +1,36 @@
+package TP6;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 class TrieMatrix {
+    private static final int ALPHABET_SIZE = 26; // Letras del alfabeto inglés
+
     TrieNodeMatrix root;
-    final int end = 26; // Letras del alfabeto inglés
 
     TrieMatrix() {
         root = null;
     }
-    // public int contarNodos() {
-    //     return contarNodos(root);
-    // }
-    // private int contarNodos(TrieNodeMatrix nodo) {
-    //     if (nodo == null) {
-    //         return 0;
-    //     }
-
-    //     int cantidad = 1;
-    //     for (char i = 'a'; i <= 'z'; i++) {
-    //         cantidad += contarNodos(nodo.getChar(i));
-    //     }
-    //     if (nodo.getChar('@') != null) {
-    //         cantidad += contarNodos(nodo.getChar('@'));
-    //     }
-
-    //     return cantidad;
-    // }
 
     void insertWord(String word) {
+        String normalized = normalizeWord(word);
+        if (normalized.isEmpty())
+            throw new IllegalArgumentException("La palabra no puede estar vacía");
+
+        // Validar toda la palabra antes de modificar el trie
+        for (int i = 0; i < normalized.length(); i++) {
+            if (getPosition(normalized.charAt(i)) < 0)
+                throw new IllegalArgumentException("Carácter fuera de rango: " + normalized.charAt(i));
+        }
+
         if (root == null)
-            root = new TrieNodeMatrix(end);
+            root = new TrieNodeMatrix(ALPHABET_SIZE);
         TrieNodeMatrix t = root;
-        word = word.toLowerCase();
 
-        for (int i = 0; i < word.length(); i++) {
-            int pos = getPosition(word.charAt(i));
-            if (pos < 0 || pos > end)
-                throw new IllegalArgumentException("Carácter fuera de rango: " + word.charAt(i));
-
+        for (int i = 0; i < normalized.length(); i++) {
+            int pos = getPosition(normalized.charAt(i));
             if (t.matrix[pos] == null)
-                t.matrix[pos] = new TrieNodeMatrix(end);
-
+                t.matrix[pos] = new TrieNodeMatrix(ALPHABET_SIZE);
             t = t.matrix[pos];
         }
 
@@ -48,19 +38,24 @@ class TrieMatrix {
     }
 
     public void insertWordReversed(String word) {
-        String reversedWord = new StringBuilder(word).reverse().toString();
+        String normalized = normalizeWord(word);
+        if (normalized.isEmpty())
+            throw new IllegalArgumentException("La palabra no puede estar vacía");
+
+        String reversedWord = new StringBuilder(normalized).reverse().toString();
         insertWord(reversedWord);
     }
 
     boolean searchWord(String word) {
-        if (root == null)
+        if (root == null || word == null || word.isEmpty())
             return false;
-        TrieNodeMatrix t = root;
-        word = word.toLowerCase();
 
-        for (int i = 0; i < word.length(); i++) {
-            int pos = getPosition(word.charAt(i));
-            if (pos < 0 || pos > end || t.matrix[pos] == null)
+        TrieNodeMatrix t = root;
+        String normalized = word.toLowerCase(Locale.ROOT);
+
+        for (int i = 0; i < normalized.length(); i++) {
+            int pos = getPosition(normalized.charAt(i));
+            if (pos < 0 || pos >= t.matrix.length || t.matrix[pos] == null)
                 return false;
 
             t = t.matrix[pos];
@@ -77,10 +72,7 @@ class TrieMatrix {
         if (node == null)
             return 0;
 
-        int count = 0;
-        if (node.isEndOfWord)
-            count++;
-
+        int count = node.isEndOfWord ? 1 : 0;
         for (TrieNodeMatrix child : node.matrix) {
             count += countWordsRecursive(child);
         }
@@ -90,21 +82,22 @@ class TrieMatrix {
 
     List<String> listWords() {
         List<String> words = new ArrayList<>();
+
         listWordsRecursive(root, "", words);
         return words;
     }
     
 
-    void listWordsRecursive(TrieNodeMatrix node, String currentWord, List<String> words) {
+    private void listWordsRecursive(TrieNodeMatrix node, String currentWord, List<String> words) {
         if (node == null) return;
-    
+
         // Si el nodo marca el final de una palabra, añadirla a la lista
         if (node.isEndOfWord) {
             words.add(currentWord);
         }
-    
+
         // Recorrer los hijos del nodo
-        for (int i = 0; i < node.matrix.length; i++) {
+        for (int i = 0; i < ALPHABET_SIZE; i++) {
             if (node.matrix[i] != null) {
                 char c = (char) ('a' + i); // Reconstruir la letra correspondiente
                 listWordsRecursive(node.matrix[i], currentWord + c, words);
@@ -112,37 +105,43 @@ class TrieMatrix {
         }
     }
     List<String> listWordsWithPrefix(String prefix) {
-        TrieNodeMatrix t = root;
+        if (prefix == null)
+            return new ArrayList<>();
 
-        for (int i = 0; i < prefix.length(); i++) {
-            int pos = getPosition(prefix.charAt(i));
-            if (t.matrix[pos] == null)
-                return new ArrayList<>();
-            t = t.matrix[pos];
-        }
+        String normalized = prefix.toLowerCase(Locale.ROOT);
+        TrieNodeMatrix t = findNode(normalized);
+        if (t == null)
+            return new ArrayList<>();
 
         List<String> words = new ArrayList<>();
-        listWordsRecursive(t, prefix, words);
+        listWordsRecursive(t, normalized, words);
         return words;
     }
 
     List<String> searchSimilarWords(String word) {
+        if (root == null || word == null || word.isEmpty())
+            return new ArrayList<>();
+
+        String normalized = word.toLowerCase(Locale.ROOT);
         TrieNodeMatrix t = root;
         int i = 0;
 
         // Navegar el Trie según el prefijo común
-        while (i < word.length()) {
-            int pos = getPosition(word.charAt(i));
+        while (i < normalized.length()) {
+            int pos = getPosition(normalized.charAt(i));
+            if (pos < 0 || pos >= t.matrix.length)
+                return new ArrayList<>(); // Carácter no válido
             if (t.matrix[pos] == null)
                 break;
             t = t.matrix[pos];
             i++;
         }
 
-        // Verificar si alcanzamos al menos la mitad de la palabra
-        if (i >= word.length() / 2) {
+        // Verificar si alcanzamos al menos la mitad de la palabra (redondeando hacia arriba)
+        int threshold = (normalized.length() + 1) / 2;
+        if (i >= threshold && i > 0) {
             List<String> similarWords = new ArrayList<>();
-            listWordsRecursive(t, word.substring(0, i), similarWords);
+            listWordsRecursive(t, normalized.substring(0, i), similarWords);
             return similarWords;
         }
 
@@ -150,19 +149,49 @@ class TrieMatrix {
     }
 
     int countPrefixes() {
-        return countPrefixesRecursive(root);
+        return countPrefixesRecursive(root, true);
     }
 
-    int countPrefixesRecursive(TrieNodeMatrix node) {
+    private int countPrefixesRecursive(TrieNodeMatrix node, boolean isRoot) {
         if (node == null)
             return 0;
 
-        int count = 1; // Este nodo cuenta como un prefijo
+        int childCount = 0;
         for (TrieNodeMatrix child : node.matrix) {
-            count += countPrefixesRecursive(child);
+            if (child != null)
+                childCount++;
+        }
+
+        // Un nodo es un prefijo compartido si tiene más de un hijo.
+        int count = (!isRoot && childCount > 1) ? 1 : 0;
+
+        for (TrieNodeMatrix child : node.matrix) {
+            count += countPrefixesRecursive(child, false);
         }
 
         return count;
+    }
+
+    private TrieNodeMatrix findNode(String prefix) {
+        if (root == null || prefix == null)
+            return null;
+
+        TrieNodeMatrix t = root;
+        for (int i = 0; i < prefix.length(); i++) {
+            int pos = getPosition(prefix.charAt(i));
+            if (pos < 0 || pos >= t.matrix.length)
+                return null;
+            t = t.matrix[pos];
+            if (t == null)
+                return null;
+        }
+        return t;
+    }
+
+    private String normalizeWord(String word) {
+        if (word == null)
+            throw new IllegalArgumentException("La palabra no puede ser null");
+        return word.toLowerCase(Locale.ROOT);
     }
 
     int getPosition(char c) {
@@ -177,8 +206,8 @@ class TrieNodeMatrix {
     TrieNodeMatrix[] matrix;
     boolean isEndOfWord;
 
-    TrieNodeMatrix(int end) {
-        matrix = new TrieNodeMatrix[end + 1];
+    TrieNodeMatrix(int alphabetSize) {
+        matrix = new TrieNodeMatrix[alphabetSize];
         isEndOfWord = false;
     }
 
