@@ -18,6 +18,9 @@ public class Trie {
         return contarPalabras(root);
     }
 
+    // Métodos solicitados en el punto 3
+
+    // a) Devolver la cantidad de palabras alamcenadas
     private int contarPalabras(TrieNode node) {
         if (node == null)
             return 0;
@@ -32,12 +35,15 @@ public class Trie {
         return count;
     }
 
+    // b) Listar todas las palabras alamcenadas
     public List<String> listarPalabras() {
         List<String> words = new ArrayList<>();
         listarPalabras(root, "", words);
         return words;
     }
 
+    // c) Mostrar todas las palabras almacenadas, que comiencen con un determinado
+    // prefijo
     public List<String> palabrasConPrefijo(String prefix) {
         List<String> words = new ArrayList<>();
         if (prefix == null)
@@ -57,6 +63,148 @@ public class Trie {
         listarPalabras(node, normalized, words); // Listar palabras desde el nodo del prefijo
         return words;
     }
+
+    // Métodos de implementación básica Punto 2
+    public void insertarPalabra(String word) {
+        String normalized = normalizarPalabra(word);
+        if (normalized.isEmpty())
+            throw new IllegalArgumentException("La palabra no puede estar vacía");
+
+        // Validar toda la palabra antes de modificar el trie
+        for (int i = 0; i < normalized.length(); i++) {
+            if (getPosition(normalized.charAt(i)) < 0)
+                throw new IllegalArgumentException("Carácter fuera de rango: " + normalized.charAt(i));
+        }
+
+        if (root == null)
+            root = new TrieNode(end);
+        TrieNode t = root;
+
+        for (int i = 0; i < normalized.length(); i++) {
+            int pos = getPosition(normalized.charAt(i));
+            if (t.getValueAt(pos) == null)
+                t.setValueAt(pos, new TrieNode(end));
+            t = t.getValueAt(pos);
+        }
+        t.setValueAt(begin, t);
+    }
+
+    public void eliminarPalabra(String word) {
+        if (word == null || word.isEmpty()) {
+            System.out.println("No se pudo eliminar: Palabra nulo o vacía");
+            return;
+        }
+        String normalizado = normalizarPalabra(word);
+        for (int i = 0; i < normalizado.length(); i++) {
+            if (getPosition(normalizado.charAt(i)) < 0) {
+                System.out.println("No se pudo eliminar: la palabra contiene caracteres no validos");
+                return;
+            }
+        }
+        if (root == null) {
+            System.out.println("la palabra \"" + word + "\" no existe en el trie.\"");
+            return;
+        }
+        boolean eliminada = eliminarPalabra(root, normalizado, 0);
+
+        if (eliminada) {
+            if (!esNecesario(root)) {
+                root = null;
+            }
+            System.out.println("Palabra eliminada con exito: " + word);
+
+        } else {
+            System.out.println("La palabra \"" + word + "\" no existe en el trie.");
+        }
+
+    }
+
+    private boolean eliminarPalabra(TrieNode node, String word, int index) {
+        if (index == word.length()) {
+            if (node.getValueAt(begin) == node) {
+                node.setValueAt(begin, null);
+                return true;
+            }
+            return false;
+        }
+
+        int pos = getPosition(word.charAt(index));
+        TrieNode child = node.getValueAt(pos);
+
+        if (child == null) {
+            return false;
+        }
+
+        boolean eliminada = eliminarPalabra(child, word, index + 1);
+
+        if (eliminada && !esNecesario(child)) {
+            node.setValueAt(pos, null);
+        }
+
+        return eliminada;
+
+    }
+
+    private boolean esNecesario(TrieNode node) {
+
+        if (node.getValueAt(begin) == node) {
+            return true; // Todavia representa una palabra
+        }
+
+        for (int i = 1; i <= end; i++) {
+            if (node.getValueAt(i) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String normalizarPalabra(String word) {
+        if (word == null)
+            throw new IllegalArgumentException("La palabra no puede ser null");
+        return word.toLowerCase(Locale.ROOT);
+    }
+
+    private void listarPalabras(TrieNode node, String prefix, List<String> words) {
+        if (node == null)
+            return;
+
+        if (node.getValueAt(begin) == node) {
+            words.add(prefix); // Agregar palabra completa
+        }
+
+        for (int i = 1; i <= end; i++) {
+            TrieNode child = node.getValueAt(i);
+            if (child != null) {
+                listarPalabras(child, prefix + (char) ('a' + i - 1), words);
+            }
+        }
+    }
+
+    public boolean buscarPalabra(String word) {
+        if (root == null || word == null || word.isEmpty())
+            return false;
+
+        String normalized = word.toLowerCase(Locale.ROOT);
+        TrieNode t = root;
+
+        for (int i = 0; i < normalized.length(); i++) {
+            int pos = getPosition(normalized.charAt(i));
+            if (pos < 0 || t.getValueAt(pos) == null)
+                return false;
+            t = t.getValueAt(pos);
+        }
+        return t.getValueAt(begin) == t;
+    }
+
+    public static int getPosition(char c) {
+        if (c >= 'a' && c <= 'z')
+            return c - 'a' + 1;
+        return -1;
+    }
+
+
+    //Métodos extras
 
     public List<String> buscarPalabrasSimilares(String word) {
         List<String> similarWords = new ArrayList<>();
@@ -176,89 +324,6 @@ public class Trie {
         return count;
     }
 
-    private void listarPalabras(TrieNode node, String prefix, List<String> words) {
-        if (node == null)
-            return;
-
-        if (node.getValueAt(begin) == node) {
-            words.add(prefix); // Agregar palabra completa
-        }
-
-        for (int i = 1; i <= end; i++) {
-            TrieNode child = node.getValueAt(i);
-            if (child != null) {
-                listarPalabras(child, prefix + (char) ('a' + i - 1), words);
-            }
-        }
-    }
-
-    public void insertarPalabra(String word) {
-        String normalized = normalizarPalabra(word);
-        if (normalized.isEmpty())
-            throw new IllegalArgumentException("La palabra no puede estar vacía");
-
-        // Validar toda la palabra antes de modificar el trie
-        for (int i = 0; i < normalized.length(); i++) {
-            if (getPosition(normalized.charAt(i)) < 0)
-                throw new IllegalArgumentException("Carácter fuera de rango: " + normalized.charAt(i));
-        }
-
-        if (root == null)
-            root = new TrieNode(end);
-        TrieNode t = root;
-
-        for (int i = 0; i < normalized.length(); i++) {
-            int pos = getPosition(normalized.charAt(i));
-            if (t.getValueAt(pos) == null)
-                t.setValueAt(pos, new TrieNode(end));
-            t = t.getValueAt(pos);
-        }
-        t.setValueAt(begin, t);
-    }
-
-public void eliminarPalabra (String word){
-    if(word == null || word.isEmpty()){
-        System.out.println("No se pudo eliminar: Palabra nulo o vacía");
-        return;
-    }
-    String normalizado = normalizarPalabra(word);
-    for(int i = 0; i < normalizado.length(); i++){
-        if()
-    }
-    
-    
-    }
-
-
-
-    public boolean buscarPalabra(String word) {
-        if (root == null || word == null || word.isEmpty())
-            return false;
-
-        String normalized = word.toLowerCase(Locale.ROOT);
-        TrieNode t = root;
-
-        for (int i = 0; i < normalized.length(); i++) {
-            int pos = getPosition(normalized.charAt(i));
-            if (pos < 0 || t.getValueAt(pos) == null)
-                return false;
-            t = t.getValueAt(pos);
-        }
-        return t.getValueAt(begin) == t;
-    }
-
-    private static String normalizarPalabra(String word) {
-        if (word == null)
-            throw new IllegalArgumentException("La palabra no puede ser null");
-        return word.toLowerCase(Locale.ROOT);
-    }
-
-    public static int getPosition(char c) {
-        if (c >= 'a' && c <= 'z')
-            return c - 'a' + 1;
-        return -1;
-    }
-
     public static void main(String[] args) {
         String[] palabras = {
                 "xml", "xmls", "xhtml", "xsl",
@@ -284,8 +349,7 @@ public void eliminarPalabra (String word){
         System.out.println("Busquedas exactas:");
         String[] busquedas = {
                 "xml", "xmls", "xhtml", "xsl", "py", "pyw", "pyi",
-                "Python", "PYTHON", "pip", "php", "perl",
-                "p", "x", "xmlt", "pyx", "perlita", "java", ""
+                "Python", "pip", "php", "perl"
         };
         for (String palabra : busquedas) {
             System.out.println("  buscarPalabra(\"" + palabra + "\") -> "
