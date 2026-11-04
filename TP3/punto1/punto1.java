@@ -1,8 +1,4 @@
-package punto1;
-
-// Esta clase compara dos métodos de búsqueda sobre un arreglo de enteros:
-// búsqueda secuencial (recorre elemento por elemento) y
-// búsqueda binaria (requiere ordenar el arreglo previamente y divide el rango a la mitad en cada paso).
+package  TP3.punto1;
 
 public class punto1 {
     private static void busquedaSecuencial(int[] elementos, int encontrar) {
@@ -89,8 +85,8 @@ public class punto1 {
     public static void main(String[] args) {
         int[] elementos = { 10, 25, 66, 10, 8, 21, 67, 8, 9, 20 };
         int encontrar = 66;
-        // busquedaSecuencial(elementos, encontrar);
-        // busquedaBinaria(elementos, encontrar);
+        busquedaSecuencial(elementos, encontrar);
+        busquedaBinaria(elementos, encontrar);
         busquedaInterpolación(elementos, encontrar);
     }
 }

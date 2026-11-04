@@ -1,40 +1,4 @@
-// private int reHashingCuadrado(int place, int cont) {
-//     place = place + (cont * cont) % this.tableSize;
-//     while (place >= this.tableSize)
-//         place = 0 + (place - this.tableSize); // tratamiento circular
-//     return place;
 
-// }
-
-// // Hash para Punto 3C)
-// private int hashMedioCuadrado(int key) {
-//     int cuadrado = (int) Math.pow(key, 2);    
-//     String aux = String.valueOf(cuadrado);
-//     int particion = (int) aux.length() / 2;
-//     String[] digitos = aux.split("");
-//     System.out.println(
-//             "Esta es la key " + key + " Esta es el cuadrdo " + cuadrado + " y esta es la particion " + particion);    
-
-//     if (digitos.length % 2 == 0) {
-//         if (digitos[particion] == "0") {
-//             return Integer.parseInt(digitos[particion + 1]);    
-//         } else {
-//             return Integer.parseInt(digitos[particion] + digitos[particion + 1]);    
-//         }
-//     } else {
-//         return Integer.parseInt(digitos[particion + 1]);    
-//     }
-
-// }
-// private int reHashingSecuencia(int place) {
-    //     place++;
-    //     if (place >= this.tableSize)
-    //         place = 0 + (place - this.tableSize); // tratamiento circular
-//     return place;    
-
-// }
-
-// // Rehashing para punto 4B
 package TP3;
 
 import java.io.File;
@@ -42,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class TablaHash {
+public class TablaHashPunto4 {
 
     private int tableSize = 101;
     private int[] tabla;
@@ -50,14 +14,14 @@ public class TablaHash {
     private int comparaciones = 0;
     private int intercambios = 0;
 
-    public TablaHash() {
+    public TablaHashPunto4() {
         this.tabla = new int[this.tableSize];
         // Inicializamos la hash table con un entero especial que representa los
         // espacios vacios (Valor centinela)
         for (int i = 0; i < this.tableSize; i++) {
             this.tabla[i] = -1;
-        }    
-    }    
+        }
+    }
 
     private void redimensionar() {
         int[] tablaVieja = this.tabla;
@@ -73,30 +37,29 @@ public class TablaHash {
             if (clave != -1) {
                 System.out.println("  Reubico la clave " + clave + ":");
                 this.insert(clave);
-            }    
-        }    
-    }    
+            }
+        }
+    }
 
     private int siguientePrimo(int n) {
         int candidato = n;
         while (!esPrimo(candidato)) {
             candidato++;
-        }    
+        }
         return candidato;
-    }    
+    }
 
     private boolean esPrimo(int n) {
         if (n < 2) {
             return false;
-        }    
+        }
         for (int d = 2; d * d <= n; d++) {
             if (n % d == 0) {
                 return false;
-            }    
-        }    
+            }
+        }
         return true;
-    }    
-
+    }
 
     // Método Hash para Punto 4
     private int hashPunto4(int key) {
@@ -104,23 +67,53 @@ public class TablaHash {
 
         while (newIndex >= this.tableSize) {
             newIndex = 0 + (newIndex - this.tableSize);
-        }    
-        
+        }
+
         return newIndex;
-    }    
+    }
+
     // Segundo hash para el punto 4C
     private int hashDivisiónModulo(int key) {
-        int newIndex = key % this.tableSize; 
+        int newIndex = key % this.tableSize;
         return newIndex;
-    }    
+    }
 
+    // Rehashin para punto 4B
+    private int reHashingCuadrado(int place, int cont) {
+        place = place + (cont * cont) % this.tableSize;
+        while (place >= this.tableSize)
+            place = 0 + (place - this.tableSize); // tratamiento circular
+        return place;
+
+    }
 
     private boolean isFull() {
         return (double) this.elements / tableSize >= 0.7;
     }
 
+    // Insert para punto 4B
     public void insert(int key) {
-        int cont = 1; //Contador para incrementar los saltos
+        int cont = 1;
+        int index = this.hashPunto4(key);
+        if (isFull()) {
+            System.out.println("Factor de carga alto, se necesita redimensionar");
+            this.redimensionar();
+        }
+        while (this.tabla[index] != -1) {
+            this.comparaciones++; // casilla ocupada detectada
+            index = this.reHashingCuadrado(index, cont);
+            cont++;
+
+        }
+        this.comparaciones++; // casilla libre encontrada (corta el while)
+
+        this.tabla[index] = key;
+        this.intercambios++; // operación de escritura de la clave
+        this.elements++;
+    }
+
+    public void insertDobleHash(int key) {
+        int cont = 1; // Contador para incrementar los saltos
         int h1 = this.hashPunto4(key);
         int jump = h1;
         if (isFull()) {
@@ -129,11 +122,12 @@ public class TablaHash {
         }
         while (this.tabla[jump] != -1) {
             this.comparaciones++; // casilla ocupada detectada
-            int h2 = 1 + (hashDivisiónModulo(key) % (tableSize - 1));  // salto ∈ 1..100, para evitar que el salto sea multiplo de TableSize o 0
-            //Doble direccionamiento Hash
-            jump = h1 + h2 * cont ;
+            int h2 = 1 + (hashDivisiónModulo(key) % (tableSize - 1)); // salto ∈ 1..100, para evitar que el salto sea
+                                                                      // multiplo de TableSize o 0
+            // Doble direccionamiento Hash
+            jump = h1 + h2 * cont;
             while (jump >= this.tableSize)
-                   jump = 0 + (jump - this.tableSize); // tratamiento circular
+                jump = 0 + (jump - this.tableSize); // tratamiento circular
             cont++;
 
         }
@@ -183,12 +177,12 @@ public class TablaHash {
 
     public static void main(String[] args) {
         try {
-            TablaHash tabla = new TablaHash();
+            TablaHashPunto4 tabla = new TablaHashPunto4();
             String nombreArchivo = "miArchivo";
             archivoNumerosAleatorios(nombreArchivo);
             tabla.cargarNumsArchivo(nombreArchivo);
             tabla.mostrarHashTable();
-            ;
+
             tabla.mostrarContadores();
 
         } catch (Exception e) {
