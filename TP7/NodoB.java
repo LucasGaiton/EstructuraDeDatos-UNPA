@@ -1,3 +1,4 @@
+package TP7;
 public class NodoB {
     int [] claves;
     NodoB[] hijos;
@@ -5,8 +6,10 @@ public class NodoB {
     boolean hoja;
 
     public NodoB(int t, boolean hoja){
-        this.claves = new int[2*t-1];
-        this.hijos = new NodoB[2*t];
+        // t es la aridad: maximo de hijos por nodo.
+        // Se deja una posicion extra de claves para poder dividir nodos llenos.
+        this.claves = new int[t];
+        this.hijos = new NodoB[t+1];
         this.hoja = hoja;
         this.nClaves = 0;
     }
